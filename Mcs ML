@@ -1,0 +1,375 @@
+Machine Learning
+
+Assignment 1 
+
+#q1 - Write a python program to Prepare Scatter Plot (Use Forge Dataset / IrisDataset)
+
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+data=pd.read_csv("data.csv")
+print(data.head(10))
+data.plot(kind="scatter",x='SepalLengthCm',y='PetalLengthCm')
+
+#q2 - Write a python program to find all null values in a given data set and remove them.
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+data=pd.read_csv("data.csv")
+data.isnull()
+print(data)
+data=data.dropna()
+print(data)
+
+#q3 -  Write a python program the Categorical values in numeric format for a given dataset.
+
+from sklearn.preprocessing import OneHotEncoder
+OneHotEncoder = OneHotEncoder()
+OneHotEncoder = pd.get_dummies(data,columns=['Species'])
+print(OneHotEncoder)
+
+Assignment 2
+
+Linear Regression housedata
+
+# Import libraries
+import numpy as np  
+import matplotlib.pyplot as plt  
+import pandas as pd
+
+SEED = 0
+
+# Load dataset
+data_set = pd.read_csv('house_prediction_data.csv')
+
+# Get dependent and independent variables
+x = data_set['sqft_living'].values
+y = data_set['price'].values
+
+print(x, y)
+
+# Plot the dataset as scatter plot
+plt.scatter(x, y, s=10)   
+# plt.plot(x_train, x_pred, color="red")    
+plt.title("Living area (sq ft) vs. House Price")  
+plt.xlabel("Living area (sq ft)")  
+plt.ylabel("House Price (rupees)")  
+plt.show() 
+
+# Split dataset into training and testing
+from sklearn.model_selection import train_test_split  
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=.3, random_state=SEED)  
+
+# Use Linear Regression algorithm
+
+from sklearn.linear_model import LinearRegression  
+
+regressor = LinearRegression()  
+
+regressor.fit(x_train.reshape(-1, 1), y_train)
+
+# Predict values 
+y_pred = regressor.predict(x_test.reshape(-1, 1))  
+x_pred = regressor.predict(x_train.reshape(-1, 1))  
+
+# Plot the regression line
+plt.scatter(x_test, y_test)   
+plt.plot(x_test, y_pred, color="red")    
+plt.title("Living area (sq ft) vs. House Price")  
+plt.xlabel("Living area (sq ft)")  
+plt.ylabel("House Price (rupees)")  
+plt.show()   
+
+Multiple Regression
+
+# Import libraries
+import numpy as np  
+import matplotlib.pyplot as plt  
+import pandas as pd
+
+SEED = 0
+
+# Load dataset
+data_set = pd.read_csv('house_prediction_data.csv')
+
+# Get dependent and independent variables
+x = data_set[['sqft_living', 'yr_built']].values
+y = data_set['price'].values
+
+print(x, y)
+
+# Split dataset into training and testing
+
+from sklearn.model_selection import train_test_split  
+
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=.3, random_state=SEED)  
+
+# Use Linear Regression algorithm
+
+from sklearn.linear_model import LinearRegression  
+
+regressor = LinearRegression()  
+
+regressor.fit(x_train, y_train)
+
+# Predict values 
+y_pred = regressor.predict(x_test)  
+
+print(y_pred)
+
+x_plt = x_test.reshape(-1,1)[:len(x_test)]
+plt.scatter(x_plt, y_test, alpha=0.3)
+plt.title("Living area (sq ft) vs. House Price")  
+plt.xlabel("Living area (sq ft)")  
+plt.ylabel("House Price (rupees)")  
+plt.show()
+
+x_plt = x_test.reshape(-1,1)[len(x_test):]
+
+plt.scatter(x_plt, y_test, alpha=0.3)
+
+plt.title("Year built vs. House Price")  
+
+plt.xlabel("Year built")  
+
+plt.ylabel("House Price (rupees)")  
+
+plt.show()
+
+Polynomial Regression
+
+# Import libraries
+
+import numpy as np  
+
+import matplotlib.pyplot as plt  
+
+import pandas as pd
+
+SEED = 0
+
+# Load dataset
+data_set = pd.read_csv('temp_pressure.csv')
+
+print(data_set)
+
+# Get dependent and independent variables
+x = data_set['Temperature'].values
+y = data_set['Pressure'].values
+
+print(x, y)
+
+# Fitting Linear Regression to the dataset
+from sklearn.linear_model import LinearRegression
+lin = LinearRegression()
+  
+lin.fit(x.reshape(-1,1), y)
+
+# Fitting Polynomial Regression to the dataset
+from sklearn.preprocessing import PolynomialFeatures
+  
+poly = PolynomialFeatures(degree = 4)
+x_poly = poly.fit_transform(x.reshape(-1,1))
+  
+poly.fit(x_poly, y)
+lin2 = LinearRegression()
+lin2.fit(x_poly, y)
+
+# Visualising the results
+plt.scatter(x, y, color = 'blue')
+plt.plot(x, lin2.predict(poly.fit_transform(x.reshape(-1,1))), color = 'red')
+plt.title('Temperature vs. Pressure')
+plt.xlabel('Temperature')
+plt.ylabel('Pressure')
+plt.show()
+
+Assignment 3
+
+# Import libraries
+import numpy as np  
+import matplotlib.pyplot as plt  
+import pandas as pd
+
+SEED = 42
+
+# Load dataset
+
+df = pd.read_csv('tennis.csv')
+
+​
+
+print(df)
+
+# Preprocessing: Label encoding
+from sklearn.preprocessing import LabelEncoder
+cols = ['Outlook', 'Temperature', 'Humidity', 'Wind']
+df[cols] = df[cols].apply(LabelEncoder().fit_transform)
+
+from sklearn.model_selection import train_test_split
+
+x = df.drop('Play Tennis', axis=1)
+y = df['Play Tennis']
+
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=SEED)
+
+from sklearn.tree import DecisionTreeClassifier
+clf = DecisionTreeClassifier(random_state = SEED, max_depth = 3)
+clf.fit(x_train, y_train)
+
+y_pred = clf.predict(x_test)
+print(y_pred)
+
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import confusion_matrix
+
+accuracy = accuracy_score(y_test, y_pred) * 100
+cm = confusion_matrix(y_test, y_pred)
+print(f'Confusion Matrix: {cm}')
+print(f'Model Accuracy: {accuracy}%')
+
+import sklearn.tree as t
+
+t.plot_tree(clf)
+
+KNN classifier
+
+# Import libraries
+
+import numpy as np  
+
+import matplotlib.pyplot as plt  
+
+import pandas as pd
+
+import mglearn
+
+SEED = 0
+
+x, y = mglearn.datasets.make_forge()
+print(x, y)
+
+from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=SEED)
+
+from sklearn.neighbors import KNeighborsClassifier
+
+model = KNeighborsClassifier(n_neighbors = 5)
+model.fit(x_train, y_train)
+
+y_pred = model.predict(x_test)
+print(y_pred)
+
+from sklearn.metrics import accuracy_score
+accuracy = accuracy_score(y_test, y_pred) * 100
+
+print(f'Model Accuracy: {accuracy}%')
+
+Linear svc
+
+# Import libraries
+
+import numpy as np  
+
+import matplotlib.pyplot as plt  
+
+import pandas as pd
+
+SEED = 0
+
+# Load dataset
+df = pd.read_csv('Social_Network_Ads.csv')
+
+print(df)
+
+from sklearn.model_selection import train_test_split
+
+x = df.drop('Purchased', axis=1)
+y = df['Purchased']
+
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.20, random_state=SEED)
+
+from sklearn.svm import SVC
+
+clf = SVC()
+clf.fit(x_train, y_train)
+
+y_pred = clf.predict(x_test)
+print(y_pred)
+
+from sklearn.metrics import accuracy_score
+
+accuracy = accuracy_score(y_test, y_pred) * 100
+
+​
+
+print(f'Model Accuracy: {accuracy}%')
+
+
+from sklearn.inspection import DecisionBoundaryDisplay
+plt.scatter(x.iloc[:, 0], x.iloc[:, 1], c=y, s=30, cmap=plt.cm.Paired)
+
+# plot the decision function
+ax = plt.gca()
+DecisionBoundaryDisplay.from_estimator(
+    clf,
+    x,
+    plot_method="contour",
+    colors="k",
+    levels=[-1, 0, 1],
+    alpha=0.5,
+    linestyles=["--", "-", "--"],
+    ax=ax,
+)
+# plot support vectors
+ax.scatter(
+    clf.support_vectors_[:, 0],
+    clf.support_vectors_[:, 1],
+    s=100,
+    linewidth=1,
+    facecolors="none",
+    edgecolors="k",
+)
+plt.show()
+
+Naive Bayes
+
+
+
+# Import libraries
+
+import numpy as np  
+
+import matplotlib.pyplot as plt  
+
+import pandas as pd
+
+SEED = 0
+
+# Load dataset
+df = pd.read_csv('Social_Network_Ads.csv')
+
+print(df)
+
+from sklearn.model_selection import train_test_split
+
+x = df.drop('Purchased', axis=1)
+y = df['Purchased']
+
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.20, random_state=SEED)
+
+from sklearn.naive_bayes import GaussianNB
+
+gnb =  GaussianNB()
+gnb.fit(x_train, y_train)
+
+y_pred = gnb.predict(x_test)
+print(y_pred)
+
+from sklearn.metrics import accuracy_score
+accuracy = accuracy_score(y_test, y_pred) * 100
+
+print(f'Model Accuracy: {accuracy}%')
+
+

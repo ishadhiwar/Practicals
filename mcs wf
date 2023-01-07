@@ -1,0 +1,468 @@
+WF
+
+Assignment 1 
+
+Email Regex
+
+-------index.html-------
+
+<!DOCTYPE html> 
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Email Regex Validator</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+  	<h1 id="msg">Email Regex Validator</h1>
+    <div class="container">
+      <form id="login-form" method="post">
+        <label for="email">Email:</label>
+        <input type="text" id="email" name="email">
+        <label for="pass">Password:</label>
+        <input type="password" id="pass" name="pass">
+        <input type="submit" name="Validate">
+    </div>
+    <script src="index.js"></script>
+  </body>
+</html>
+
+-----index.js---------
+const form = document.getElementById('login-form');
+
+const isEmailValid = (email) => {
+    const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(email);
+};
+
+const isLengthZero = (str) => str.length === 0;
+
+form.addEventListener('submit', (e) => {
+	e.preventDefault();
+	const email = document.getElementById('email').value;
+	const pass = document.getElementById('pass').value;
+
+	if(!isEmailValid(email)) alert('Invalid email: E-mail should follow proper email syntax.');
+	if(isLengthZero(pass)) alert('Invalid password: Password field cannot be empty.');
+	if(isEmailValid(email) && !isLengthZero(pass)){
+		msg.innerHTML = "Logged in successfully.";
+		form.style.display = 'none';
+	}
+	else{
+		msg.innerHTML = "Login failed. Try again in 5 secs!";		
+		form.style.display = 'none';
+
+		setTimeout(() => {
+		   window.location.reload();
+		   form.style.display = 'block';
+		}, 5000);
+	}
+});
+
+---------style.css-------
+
+*{
+	margin: 0;
+	padding: 0;
+}
+
+h1{
+	text-align: center;
+	padding: 20px;
+}
+
+.container{
+	display: flex;
+	flex-direction: row;
+  	justify-content: center;
+  	padding: 50px;
+	/* border: 3px solid black; */
+}
+
+.container > label, input {
+	margin: 10px;
+	padding: .5em;
+	display: flex;
+}
+
+---------------------------------------------------------------------------------------------------------------------------------------
+Employee form
+
+--------index.htm---
+
+<!DOCTYPE html> 
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Registration Form</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+  	<h1 id="msg">Employee Registration Form</h1>
+    <div class="container">
+      <form id="register-form">
+        <label for="fname">First name:</label>
+        <input type="text" id="fname" name="fname">
+        <label for="lname">Last name:</label>
+        <input type="text" id="lname" name="lname">
+        <label for="age">Age:</label>
+        <input type="number" id="age" name="age">
+        <label for="dob">DOB:</label>
+        <input type="date" id="dob" name="dob">
+        <label for="joindate">Joining Date:</label>
+        <input type="date" id="joindate" name="joindate">
+        <label type="salary">Salary:</label>
+        <input type="number" id="salary" name="salary">
+        <input type="submit" value="Submit">
+      </form>
+    </div>
+    <script src="index.js"></script>
+  </body>
+</html>
+---------index.js----------
+
+const form = document.getElementById('register-form');
+const isBetween = (number, min, max) => number >= min && number <= max;  
+const isAlpha = (str) => /^[a-zA-Z]*$/.test(str);
+const isZero = (number) => number == 0 || number == null;
+const diffDate = (d1, d2) => {
+	const date1 = new Date(d1);
+	const date2 = new Date(d2);
+	return date2.getTime() - date1.getTime();
+}
+
+form.addEventListener('submit', (e) => {
+	e.preventDefault();
+	const fname = document.getElementById('fname').value;
+	const lname = document.getElementById('lname').value;
+	const age = document.getElementById('age').value;
+	const dob = document.getElementById('dob').value;
+	const joindate = document.getElementById('joindate').value;
+	const sal = document.getElementById('salary').value;
+	const msg = document.getElementById('msg');
+
+	if(!isAlpha(fname)) alert('Invalid first name: Name should only contain alphabets.');
+	if(!isAlpha(lname)) alert('Invalid last name: Name should only contain alphabets.')
+	if(!isBetween(age, 18, 50)) alert('Invalid age: Age should be between 18 and 50.');
+	if(!(diffDate(dob, joindate) > 0)) alert('Invalid joining date: Joining date cannot be earlier from DOB.');
+	if(isZero(sal)) alert('Invalid salary: Salary cannot be zero.');
+
+	console.log('Date diff' + diffDate(dob, joindate));
+	if(isAlpha(fname) && isAlpha(lname) && isBetween(age, 18, 50) && diffDate(dob, joindate) > 0 && !isZero(sal)){
+		msg.innerHTML = "Form submitted successfully.";
+		form.style.display = 'none';
+	}
+	else{
+		msg.innerHTML = "Try Again in 5 secs! Form not submitted.";		
+		form.style.display = 'none';
+
+		setTimeout(() => {
+		   window.location.reload();
+		   form.style.display = 'block';
+		}, 5000);
+	}
+});
+
+-----------style.css-------
+
+*{
+	margin: 0;
+	padding: 0;
+}
+
+h1{
+	text-align: center;
+	padding: 20px;
+}
+
+.container{
+	display: flex;
+	flex-direction: row;
+  	justify-content: center;
+  	padding: 50px;
+	/* border: 3px solid black; */
+}
+
+.container > label, input {
+	margin: 10px;
+	padding: .5em;
+	display: flex;
+}
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+Student form
+
+-----------index.html-----------
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Registration Form</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+  	<h1 id="msg">Student Registration Form</h1>
+    <div class="container">
+      <form id="register-form">
+        <label for="fname">First name:</label>
+        <input type="text" id="fname" name="fname">
+        <label for="lname">Last name:</label>
+        <input type="text" id="lname" name="lname">
+        <label for="age">Age:</label>
+        <input type="number" id="age" name="age">
+        <input type="submit" value="Submit">
+      </form>
+    </div>
+    <script src="index.js"></script>
+  </body>
+</html>
+
+---------index.js----------
+
+const form = document.getElementById('register-form');
+const isBetween = (number, min, max) => number >= min && number <= max;  
+const isAlpha = (str) => /^[a-zA-Z]*$/.test(str);
+
+form.addEventListener('submit', (e) => {
+	e.preventDefault();
+	const fname = document.getElementById('fname').value;
+	const lname = document.getElementById('lname').value;
+	const age = document.getElementById('age').value;
+	const msg = document.getElementById('msg');
+	
+	if(!isAlpha(fname)) alert('Invalid first name: Name should only contain alphabets.');
+	if(!isAlpha(lname)) alert('Invalid last name: Name should only contain alphabets.')
+	if(!isBetween(age, 18, 50)) alert('Invalid age: Age should be between 18 and 50.');
+
+	if(isAlpha(fname) && isAlpha(lname) && isBetween(age, 18, 50)){
+		msg.innerHTML = "Form submitted successfully.";
+	}
+	else{
+		msg.innerHTML = "Try Again! Form not submitted.";		
+	}
+});
+
+---------style.css--------
+*{
+	margin: 0;
+	padding: 0;
+}
+
+h1{
+	text-align: center;
+	padding: 20px;
+}
+
+.container{
+	display: flex;
+	flex-direction: row;
+  	justify-content: center;
+  	padding: 50px;
+	/* border: 3px solid black; */
+}
+
+.container > label, input {
+	margin: 10px;
+	padding: .5em;
+	display: flex;
+}
+
+-------------------------------------------------------------------------------------------------------------------------------------
+Assignment 2 
+
+events
+
+create package.json
+
+--------index.js--------
+const EventEmitter = require('events');
+var eventEmitter = new EventEmitter();
+const readline = require('readline');
+
+eventEmitter.on('hello', () => console.log('Hiya!'));
+eventEmitter.on('bye', () => console.log('Seeya sucker...'));
+
+readline.emitKeypressEvents(process.stdin);
+if (process.stdin.isTTY)
+	process.stdin.setRawMode(true);
+process.stdin.on('keypress', (chunk, key) => {
+	if (key){
+		if (key.name == 'h') eventEmitter.emit('hello');
+		if (key.name == 'b') eventEmitter.emit('bye');
+		if (key.name == 'q') process.exit();
+	}
+});
+
+--------------------------------------------------------------------------------------------------------------------------------
+file handling
+create package.json
+
+-----------index.js-------
+const fs = require('fs');
+const rl = require('readline').createInterface(process.stdin, process.stdout);
+
+rl.question('First file name: ', (f1) => {
+	fs.readFile(f1, 'utf8', (err, data) => {
+		if(err) throw err;
+		rl.question('Second file name: ', (f2) => {
+			fs.appendFile(f2, data, 'utf8', (err) => {
+				if(err) throw err;
+				console.log('Data appended successfully.');
+			});
+		});
+	});
+});
+
+-----------ipsum.txt--------
+12345678
+
+-------lorem.txt------
+abcdef
+
+-------------------------------------------------------------------------------------------------------------------------------------
+modules
+
+create package.json
+
+----------index.js---------
+const http = require('http')
+const current = require('./modules.js')
+const port = 8080;
+
+console.log(`Server URL: http://localhost:${port}`);
+http.createServer((req, res) => {
+	res.writeHead(200, {'Content-Type': 'text/html'});
+    res.write(`<h1>Current date and time: ${current()}</h1>`);
+    res.end();
+}).listen(port);
+
+-------modules.js---------------------
+module.exports = () => new Date().toString();
+-----------------------------------------------------------------------------------------------------------------------------------
+
+all customers
+
+create package.json
+(node_modules)
+mongodb collection
+
+------index.js---
+const mongoose = require('mongoose');
+
+const url = 'mongodb://192.168.100.203:27017/DS';
+                                                                                                                                                                                                                                                                                                                                                                                                               
+mongoose.connect(url);
+
+const myModel = mongoose.model('customers', mongoose.Schema({ name: String, addr: String, number: Number}));
+
+myModel.find({}, (err, data) => {
+    if(err) console.log(err);
+
+    console.log(data);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
+    mongoose.connection.close(() => { 
+        console.log('DB connection closed.');
+        process.exit(0);
+    });
+});
+
+------------main.js---------
+const mongoose = require('mongoose');
+
+const url = 'mongodb://192.168.100.203:27017/test300';
+                                                                                                                                                                                                                                                                                                                                                                                                               
+mongoose.connect(url);
+
+const myModel = mongoose.model('customers', mongoose.Schema({ name: String, rollno: Number}));
+
+myModel.find({}, (err, data) => {
+    if(err) console.log(err);
+
+    console.log(data);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
+    mongoose.connection.close(() => { 
+        console.log('DB connection closed.');
+        process.exit(0);
+    });
+});
+
+---------------------------------------------------------------------------------------------------------------------------------
+
+customers
+
+--------index3.js--------------
+
+const mongoose = require('mongoose');
+
+const url = 'mongodb://192.168.100.203/DS';
+                                                                                                                                                                                                                                                                                                                                                                                                               
+mongoose.connect(url);
+
+const myModel = mongoose.model('customers', mongoose.Schema({ name: String, addr: String, number: Number}));
+
+myModel.deleteOne({name: 'Shreyas'})
+    .then(() => console.log('Data removed successfully.'))
+    .catch((err) => console.log(err));
+    
+----------------------------------------------------------------------------------------------------------------------------------------
+
+student
+
+--------index.js
+
+const mongoose = require('mongoose');
+
+const url = 'mongodb://192.168.100:203/DS'
+
+mongoose.connect(url);
+
+const studentModel = mongoose.model('students', mongoose.Schema({
+	rollno: Number,
+	name: String,
+	div: String
+}));
+
+const records = [
+	{rollno: 12, name: 'Divs', div:'A'},
+	{rollno: 13, name: 'K10', div:'A'},
+	{rollno: 14, name: 'Shreyas', div:'B'}
+];
+
+
+studentModel
+	.insertMany(records)
+	.then(() => console.log('Data inserted'))
+	.catch((err) => console.log(err));
+	
+-------------------------------------------------------------------------------------------------------------------------
+Assignment 4
+
+download
+
+create package.json
+package-lock.json
+
+--------index.js------
+
+const express = require('express');
+const app = express();
+
+const PORT = 3000;
+  
+app.get('/', function(req, res){
+    res.download('test.txt');
+});
+  
+app.listen(PORT, function(err){
+    if (err) console.log(err);
+    console.log("Server listening on PORT", PORT);
+});
+
+-----test.txt---------
+Hello, World!
+
+----------------------------------------------------------------------------------------------------------------------------------------
+

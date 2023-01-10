@@ -1,0 +1,757 @@
+cd $HADOOP-HOME/sbin/
+-/start-dfs.sh
+-/start-yarn.sh
+
+------Slip 1---------------
+1. Remove a demo directory from Hadoop environment. (Create a demo directory).
+
+first create dir in hadoop
+hadoop fs -mkdir /DirectoryName
+hadoop fs -ls /
+hadoop fs -rmdir /DirectoryName
+
+2. Create a student.txt file in Hadoop environment and copy this file in root directory.
+
+create student.txt in hadoop directory
+example DirectoryName/student.txt
+hadoop fs -copyToLocal /<file location in hdfs> <directory location in local>
+hadoop fs -copyToLocal /DirectoryName/student ~/localDirectorypath
+
+ls //local directory to check if file is visible
+
+3. display the content of student.txt file.
+
+hadoop fs -cat/<file location of student.txt>
+
+4.expunge command
+hadoop fs -expunge //makes trash empty
+
+5. df command
+hadoop fs -df //df shows the capacity, size, and free space available on the HDFS file system.
+hadoop fs -df -h  //-h option formats the file size in the human-readable format.
+
+Q2. Write basic Word Count Map Reduce program using python/java to understand MapReduce Paradigm.
+
+
+create WordCount.py  and data.txt on local both files should be at same location
+----WordCount.py----
+
+from mrjob.job import MRJob
+
+class Count(MRJob):
+    def mapper(self, _, line):
+        for word in line.split():
+            yield(word, 1)
+    def reducer(self, word, counts):
+        yield(word, sum(counts))
+
+if __name__ == '__main__':
+    Count.run()
+    
+pip3 install mrjob --user   //install mrjob module
+  
+python WordCount.py data.txt  //to check if code is working
+  
+send data.txt to the folder or directory that you have created in hdfs
+hadoop fs -put <file location of data.txt> <file location of hdfs directory where you want to put the file>
+
+python WordCount.py -r hadoop hdfs:///content/data.txt      //to run mrjob on hadoop (file location of data.txt so instead of content put your dir name in hdfs or just copy path of data.txt)
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+
+------------Slip 2----------------
+
+Show practical examples to list files, Insert data, retrieving data,append to file and
+shutting down HDFS.
+
+hadoop fs -ls
+
+--inserting data to hdfs----
+hadoop fs -mkdir /user/input  // make dir user with file input
+hadoop fs -put /home/filename.txt /user/input   //put file from local to hadoop--- haoop fs -put <localsrc> <dest>
+hadoop fs -ls /user/input    //verify file
+
+----retrieving data from hdfs-----
+hadoop fs -cat /user/output/filename     //
+hadoop fs -get /user/output/ /home/hadoop_tp/      //hdfs to local file system---hadoop fs -get <src> <localdest>
+hadoop fs -cat/<file location of student.txt>  //retrieve data
+
+---stop dfs---
+
+stop-dfs.sh
+
+----appendfile----
+hadoop fs -get <src> <localdest>   ----  append the localfile1, localfile2 present in the local filesystem into the file named as ‘apendfile’ in the DataFlair directory on the  hadooop fs -appendToFile file1 file2 /DataFlair/appendfile
+
+Q2 Write a MapReduce program to analyze weather data set and print whether the day is
+shinny or cool day.Hint: Weather sensors collecting data every hour at many locations across
+the globe gather a large volume of log data, which is a good candidate for analysis with Map
+Reduce, since it is semi structured and record-oriented.
+
+--weather.py--
+from mrjob.job import MRJob
+
+class WeatherStats(MRJob):
+    
+    def mapper(self, key, value):
+        try:
+            d, tmax, tmin, tavg = value.split(',')
+            yield d, float(tavg)
+        except ValueError:
+            pass
+
+    def reducer(self, key, values):
+        for avg in values:
+            yield key, "Cool" if avg < 50 else "Shiny"
+        
+if __name__ == '__main__':
+    WeatherStats.run()
+---data --Effective listening & simple conversations--temperature_slip2_14.csv
+
+
+
+---slip 3---
+
+Q1 Create a emp.txt file in root directory and move this file in Hadoop environment.
+
+hadoop fs -moveFromLocal <localsrc> <dest>   
+
+display the statistics about the file.(use default format).
+hadoop fs -stat [format] <path of file in hdfs>
+
+%b –    file size in bytes
+%g –    group name of owner
+%n –    file name
+%o –    block size
+%r  –    replication
+%u –    user name of owner
+%y –    modification date If the format is not specified then %y is used by default.
+
+change the permission of the file.
+hadoop fs -chmod -r <filename>
+hadoop fs -chown <filepath>
+hadoop fs -ls
+
+implement checksum command
+hadoop fs -checksum <src> 
+hadoop fs -checksum /dataflair/appendfile
+
+delete emp.txt file.
+
+hadoop fs -rm <path of file>
+
+Q2 Weather Report POC-Map Reduce Program to analyse time-temperature statistics and
+generate report with max/min temperature.Problem Statement is as follows [15]
+1. The system receives temperatures of various cities(Austin, Boston,etc) of USA
+captured at regular intervals of time on each day in an input file.
+2. System will process the input data file and generates a report with Maximum and
+Minimum temperatures of each day along with time.
+3. Generates a separate output report for each city.
+Ex: Austin-r-00000
+Boston-r-00000
+Newjersy-r-00000
+Baltimore-r-00000
+California-r-00000
+Newyork-r-00000
+Expected output:- In each output file record should be like this:
+25-Jan-2014 Time: 12:34:542 MinTemp: -22.3 Time: 05:12:345 MaxTemp: 35.7
+
+code to be added----------------------------
+----slip4------
+Q1. Create a emp.txt file in root directory and move this file in Hadoop environment.
+hadoop fs -moveFromLocal <localsrc> <dest> 
+
+Display last few lines of the above emp.txt file.
+hadoop fs -tail [-f] <file>
+hadoop fs -tail <file location /file name>
+
+du command
+hadoop fs –du –s /directory/filename     //prints a summary of the amount of disk usage of all files/directories in the path.
+df command
+hadoop fs -df -h      //df shows the capacity,size,and free space available on the HDFS file system.-h option formats the file size in the human-readable format.
+fsck command
+hadoop fsck <path of file> //used to check health of hdfs
+
+Q2.It contains the monthly electrical consumption and the annual average for various years.
+To find the maximum number of electrical consumption and minimum number of electrical
+consumption in the year.
+
+--electricity.py---
+from mrjob.job import MRJob
+
+class Electricity(MRJob):
+    
+    def mapper(self, _, line):
+        try:
+            record = line.split(',')
+            for key in record[1:-1]:
+                yield int(record[0]), int(key)
+        except ValueError:
+            pass
+            
+    def reducer(self, key, values):
+        val = list(values)
+        yield key, f'Max: {max(val)}, Min: {min(val)}'
+
+if __name__ == '__main__':
+    Electricity.run()
+    
+-------slip5--------
+count the number of files and directories in HDFS.(Use options for the command)
+
+hadoop fs -count [options] <path>
+hadoop fs -v /
+hadoop fs -v -q /
+hadoop fs -v -u /
+hadoop fs -v -h /
+-q  –  shows quotas(quota is the hard limit on the number of names and amount of space used for individual directories)
+-u  –  it limits output to show quotas and usage only
+-h  –  shows sizes in a human-readable format
+-v  –  shows header line
+ find
+ hadoop fs -find <path> … <expression>   //find finds all files that match the specified expression. If no path is specified, then it defaults to the present working directory. If an expression is not specified, then it defaults to -print.
+ 
+ hadoop fs -find /-name filename -print
+
+ getmerge
+ hadoop fs -getmerge <src> <localdest>
+ hadoop fs -getmerge /dataflair ~/mergefile
+ 
+ usage
+ hadoop fs -usage <command>
+ hadoop fs -usage chmod
+ 
+ test
+ hadoop fs -test -e filename
+//-d	Check whether the path given by the user is a directory or not, return 0 if it is a directory.
+-e	Check whether the path given by the user exists or not, return 0 if the path exists.
+-f	Check whether the path given by the user is a file or not, return 0 if it is a file.
+-s	Check if the path is not empty, return 0 if a path is not empty.
+-r	return 0 if the path exists and read permission is granted
+-w	return 0 if the path exists and write permission is granted
+-z	Checks whether the file size is 0 byte or not, return 0 if the file is of 0 bytes. 
+
+Q2. The table includes the monthly visitors of website page and annual average of five years.
+To find the maximum number of visitors and minimum number of visitors in the year.
+
+from mrjob.job import MRJob
+
+class WebsiteStats(MRJob):
+    
+    def mapper(self, key, value):
+        try:
+            records = value.split(',')
+            for record in records[1:-1]:
+                yield records[0], int(record)
+        except ValueError:
+            pass
+        
+    def reducer(self, key, values):
+        val = list(values)
+        yield key, f'Min: {min(val)}, Max: {max(val)}'
+        
+if __name__ == '__main__':
+    WebsiteStats.run()
+    
+    
+-----slip6------
+Q1. Create a studentdata.txt file in Hadoop environment and move this file to root
+directory.
+hadoop fs -moveToLocal <src> <localdest> //dont work so use put
+hadoop fs -put /home/filename.txt /user/input   //put file from local to hadoop--- haoop fs -put <localsrc> <dest>
+put
+hadoop fs -put /home/filename.txt /user/input   //put file from local to hadoop--- haoop fs -put <localsrc> <dest>
+
+ tail
+ hadoop fs -tail [-f] <file>
+hadoop fs -tail <file location /file name>
+ fsck
+ hadoop fsck <path of file> //used to check health of hdfs
+ display the list of files in specified directory.(Create files and directory accordingly.)
+ hadoop fs -ls /
+ 
+ Q2. Write a MapReduce program to analyze Sales related information.The input data used
+is SalesJan2009.csv. It contains Sales related information like Product name, price, payment
+mode, city, country of client etc. The goal is to Find out Number of Products Sold in Each
+Country.
+
+from mrjob.job import MRJob
+
+class Sales(MRJob):
+    
+    def mapper(self, key, value):
+        record = value.split(',')
+        yield record[7], 1
+        
+    def reducer(self, key, values):
+        yield key, sum(values)
+        
+if __name__ == '__main__':
+    Sales.run()
+
+-----------------------------------------------------------------------------------
+-slip 7-------
+mkdir
+hadoop fs -mkdir /DirectoryName
+hadoop fs -ls /
+ copy the demo.txt in hadoop environment.
+ hadoop fs -copyFromLocal <localsrc file loc> <hdfs destination folder loc >
+c) move the directory into another directory.
+hadoop fs -cp <src> <dest>
+d) tail
+hadoop fs -tail [-f] <file>
+hadoop fs -tail <file location /file name>
+e) delete file created in hadoop environment.
+hadoop fs -rm /
+
+Q.2) Write a basic Word Count Map Reduce program using python/java to understand Map
+Reduce Paradigm. create file called sample.txt whose contents are as follows:
+Dear, Bear, River, Car, Car, River, Deer, Car and Bear
+
+
+create WordCount.py  and data.txt on local both files should be at same location
+----WordCount.py----
+from mrjob.job import MRJob
+from re import compile
+
+class WordCount(MRJob):
+
+    def mapper(self, key, value):
+        for word in value.split(','):
+            yield word.lower(), 1
+    
+    def reducer(self, key, values):
+        yield key, sum(values)
+        
+if __name__ == '__main__':
+    WordCount.run()
+    
+pip3 install mrjob --user   //install mrjob module
+  
+python WordCount.py data.txt  //to check if code is working
+  
+send data.txt to the folder or directory that you have created in hdfs
+hadoop fs -put <file location of data.txt> <file location of hdfs directory where you want to put the file>
+
+python WordCount.py -r hadoop hdfs:///content/data.txt      //to run mrjob on hadoop (file location of data.txt so instead of content put your dir name in hdfs or just copy path of data.txt)
+
+----------------------------------------------------------------------------------------------------------------------------------------
+slip 8
+changing the group of ‘sample.zip’ file of the HDFS file system.
+hadoop fs -ls /    //check grp
+hadoop fs -chgrp <group> <path>
+hadoop fs -chgrp newgroup /sample.zip
+hadoop fs -ls /   ////check if group changed
+changing the owner of a file name sample.
+hadoop fs -ls /    //check own    
+hadoop fs -chown [-R] [owner] [:[group]] <path>
+hadoop fs -chown <path of file>
+hadoop fs -ls /    //check own changed
+prints a summary of the amount of disk usage of all files.
+hadoop fs –du –s /directory/filename
+ show last modified time of directory
+hadoop fs -stat %y <path>
+ implement test command
+hadoop fs -test  -[defsz] <path>
+
+Q.2 Implement matrix multiplication with Hadoop Map Reduce.
+---code to be added
+
+------------------------------------------------------------------------------------------------------------------------------------
+slip 9
+
+create empty file in hdfs.
+hadoop fs –touchz /directory/filename
+
+b) copy sample.txt from local environment to HDFS.
+ hadoop fs -copyFromLocal <localsrc file loc> <hdfs destination folder loc >
+c) print the content of sample.txt file.
+hadoop fs -cat/<file location of student.txt>  //retrieve data
+
+d) display the total size of file.
+hadoop fs -stat %b <path>
+e) chmod command
+hadoop fs -chmod -r <filename>
+
+(Note: you may create a file/directory depending on the command requirements.)
+Q.2 Write MapReduce program using python/java to find out how many reviews for each
+rating. consider this dataset that consists of hotel reviews and ratings.
+
+---code to be added---
+
+---------------------------------------------------------------------------
+
+slip 10
+
+copy one file from one directory to another within HDFS.
+hadoop fs -cp <src> <dest>
+b) show the statistics about the directory in the specified format.(%b,%g,%u,%n)
+hadoop fs -stat [format] <path of file in hdfs>
+
+%b –    file size in bytes
+%g –    group name of owner
+%n –    file name
+%o –    block size
+%r  –    replication
+%u –    user name of owner
+%y –    modification date If the format is not specified then %y is used by default.
+c) implement text command.
+hadoop fs -text <src>
+d) fsck
+hadoop fsck <path of file> //used to check health of hdfs
+e) cat command
+hadoop fs -cat/<file location of student.txt>  //retrieve data
+
+(Note: you may create a file/directory depending on the command requirements.)
+Q.2 Write mapreduce program to analyze employee details and find the maximum and
+minimum salary in each department.employee details consists of list of employees with there
+department and salary.
+--employee.py---
+from mrjob.job import MRJob
+
+class EmployeeStats(MRJob):
+    
+    def mapper(self, key, value):
+        try:
+            id, _, _, sal, dept_id = value.split(',')
+            yield int(dept_id), float(sal)
+        except ValueError:
+            pass
+        
+    def reducer(self, key, values):
+        val = list(values)
+        yield f'Department ID {key}', f'Max: ${max(val)}, Min: ${min(val)}'
+        
+if __name__ == '__main__':
+    EmployeeStats.run()
+    
+-------------------------------------------------------------------------------------------------------
+slip 11
+
+display summary of the amount of disk usage of all files.
+hadoop fs –du –s /directory/filename
+b) change the permission of the file.
+hadoop fs -chmod -r <filename>
+c) Create an employee.txt file with some content and Moves this file from local file
+system to the Hadoop file system.
+adoop fs -moveFromLocal <localsrc> <dest> 
+d) copy one file from one directory to another within HDFS.
+
+e) display last 1kb data of employee.txt file.
+hadoop fs -cp <src> <dest>
+
+Q.2) Implement matrix multiplication with Hadoop Map Reduce. 
+
+--code to add
+
+-----------------------------------------------------------
+slip 12
+
+create patient_detalis.txt file in Hospital directory and move this file in another
+directory within hdfs.
+hadoop fs -mv <src> <dest>
+b. display the total size of Hospital directory.
+hadoop fs –du –s /directory/filename
+c. show the statistics about the directory in the specified format.(%o,%r,%u,%y)
+hadoop fs -stat [format] <path of file in hdfs>
+
+%b –    file size in bytes
+%g –    group name of owner
+%n –    file name
+%o –    block size
+%r  –    replication
+%u –    user name of owner
+%y –    modification date If the format is not specified then %y is used by default.
+d. list of all files in hospital directory.(add and list a minimum 4 files).
+hadoop fs -ls /
+e. delete hospital directory.
+hadoop fs -rm <path>
+
+Q.2) Write mapreduce program to analyze employee details and find the count of employees
+in each department.employee details consists of list of employees with there department.
+--employee.py---
+from mrjob.job import MRJob
+
+class EmployeeStats(MRJob):
+    
+    def mapper(self, key, value):
+        try:
+            _, _, _, dept_id = value.split(',')
+            yield int(dept_id), 1
+        except ValueError:
+            pass
+        
+    def reducer(self, key, values):
+        yield f'Department ID {key}', f'No. of employees: {sum(values)}'
+        
+if __name__ == '__main__':
+    EmployeeStats.run()
+
+--------------------------------------------------------------------------------------------------------
+slip 13
+
+Create a college.txt file in root directory and move this file in Hadoop environment.
+hadoop fs -moveFromLocal <localsrc> <dest>
+b) Count the number of files and directories in HDFS.(use specified format as option
+-v,-h,-q)
+hadoop fs -count [options] <path>
+hadoop fs -v /
+hadoop fs -v -q /
+hadoop fs -v -u /
+hadoop fs -v -h /
+-q  –  shows quotas(quota is the hard limit on the number of names and amount of space used for individual directories)
+-u  –  it limits output to show quotas and usage only
+-h  –  shows sizes in a human-readable format
+-v  –  shows header line
+c) du command
+hadoop fs –du –s /directory/filename
+d) implement find command for college.txt
+hadoop fs -find <path> … <expression>   //find finds all files that match the specified expression. If no path is specified, then it defaults to the present working directory. If an expression is not specified, then it defaults to -print.
+ 
+ hadoop fs -find /-name filename -print
+e) Remove a bank_details directory from Hadoop environment. (Create a bank_details
+directory).
+hadoop fs -rm <path for file in hdfs>
+
+-------------------------------------------------------------------------------
+slip 14
+
+Create a teacher.txt file in Hadoop environment and copy this file in root directory.
+hadoop fs –touchz /directory/filename
+hadoop fs -copyToLocal <hdfs source> <localdst>
+b) display the content of teacher.txt file.
+hadoop fs -cat/<file location of student.txt>  //retrieve data
+c) display the list of files in specified directory.(Create files and directory accordingly.)
+hadoop fs -ls/
+d) implement tail command on teacher.txt file.
+hadoop fs -tail <file location /file name>
+e) remove teacher.txt file from directory.
+hadoop fs -rm /
+
+Q.2) Write a MapReduce program to analyze weather data set and print whether the day is
+shinny or cool day.Hint: Weather sensors collecting data every hour at many locations across
+the globe gather a large volume of log data, which is a good candidate for analysis with Map
+Reduce, since it is semi structured and record-oriented.
+
+from mrjob.job import MRJob
+
+class WeatherStats(MRJob):
+    
+    def mapper(self, key, value):
+        try:
+            d, tmax, tmin, tavg = value.split(',')
+            yield d, float(tavg)
+        except ValueError:
+            pass
+
+    def reducer(self, key, values):
+        for avg in values:
+            yield key, "Cool" if avg < 50 else "Shiny"
+        
+if __name__ == '__main__':
+    WeatherStats.run()
+    
+----------------------------------------------------------------
+slip 15
+
+create and move the bank directory into another directory within hadoop environment.
+hadoop fs -mkdir /bank
+hadoop fs -mv <src> <dest
+b) change the permission of the file.
+hadoop fs -chmod -r <filename>
+c) Display last few lines of the above customer.txt file.
+hadoop fs -tail <file location /file name>
+d) change the replication factor of customer.txt file in HDFS.
+hadoop fs -setrep <rep> <path>
+hadoop fs -setrep 2 <path>
+e) delete bank directory from HDFS.
+hadoop fs -rm <path>
+
+Q.2) Write basic Word Count Map Reduce program using python/java to understand Map
+Reduce Paradigm.
+
+create WordCount.py  and data.txt on local both files should be at same location
+----WordCount.py----
+
+from mrjob.job import MRJob
+
+class Count(MRJob):
+    def mapper(self, _, line):
+        for word in line.split():
+            yield(word, 1)
+    def reducer(self, word, counts):
+        yield(word, sum(counts))
+
+if __name__ == '__main__':
+    Count.run()
+    
+pip3 install mrjob --user   //install mrjob module
+  
+python WordCount.py data.txt  //to check if code is working
+  
+send data.txt to the folder or directory that you have created in hdfs
+hadoop fs -put <file location of data.txt> <file location of hdfs directory where you want to put the file>
+
+python WordCount.py -r hadoop hdfs:///content/data.txt      //to run mrjob on hadoop (file location of data.txt so instead of content put your dir name in hdfs or just copy path of data.txt)
+
+----------------------------------------------------------------------------------------------------------------
+
+
+
+all Q2
+--electricity.py------
+from mrjob.job import MRJob
+
+class Electricity(MRJob):
+    
+    def mapper(self, _, line):
+        try:
+            record = line.split(',')
+            for key in record[1:-1]:
+                yield int(record[0]), int(key)
+        except ValueError:
+            pass
+            
+    def reducer(self, key, values):
+        val = list(values)
+        yield key, f'Max: {max(val)}, Min: {min(val)}'
+
+if __name__ == '__main__':
+    Electricity.run()
+    
+    
+------employee.py---
+//count emp
+
+from mrjob.job import MRJob
+
+class EmployeeStats(MRJob):
+    
+    def mapper(self, key, value):
+        try:
+            _, _, _, dept_id = value.split(',')
+            yield int(dept_id), 1
+        except ValueError:
+            pass
+        
+    def reducer(self, key, values):
+        yield f'Department ID {key}', f'No. of employees: {sum(values)}'
+        
+if __name__ == '__main__':
+    EmployeeStats.run()
+    
+----------employee.py----
+//employee min max
+
+from mrjob.job import MRJob
+
+class EmployeeStats(MRJob):
+    
+    def mapper(self, key, value):
+        try:
+            id, _, _, sal, dept_id = value.split(',')
+            yield int(dept_id), float(sal)
+        except ValueError:
+            pass
+        
+    def reducer(self, key, values):
+        val = list(values)
+        yield f'Department ID {key}', f'Max: ${max(val)}, Min: ${min(val)}'
+        
+if __name__ == '__main__':
+    EmployeeStats.run()
+    
+------weather.py-----
+
+from mrjob.job import MRJob
+
+class WeatherStats(MRJob):
+    
+    def mapper(self, key, value):
+        try:
+            d, tmax, tmin, tavg = value.split(',')
+            yield d, float(tavg)
+        except ValueError:
+            pass
+
+    def reducer(self, key, values):
+        for avg in values:
+            yield key, "Cool" if avg < 50 else "Shiny"
+        
+if __name__ == '__main__':
+    WeatherStats.run()
+    
+-------website.py---
+from mrjob.job import MRJob
+
+class WebsiteStats(MRJob):
+    
+    def mapper(self, key, value):
+        try:
+            records = value.split(',')
+            for record in records[1:-1]:
+                yield records[0], int(record)
+        except ValueError:
+            pass
+        
+    def reducer(self, key, values):
+        val = list(values)
+        yield key, f'Min: {min(val)}, Max: {max(val)}'
+        
+if __name__ == '__main__':
+    WebsiteStats.run()
+
+-----wordcount.py-----
+from mrjob.job import MRJob
+from re import compile
+
+WORD_RE = compile(r"[\w']+")
+
+class WordCount(MRJob):
+
+    def mapper(self, key, value):
+        for word in WORD_RE.findall(value):
+            yield word.lower(), 1
+            
+    
+    def reducer(self, key, values):
+        yield key, sum(values)
+        
+if __name__ == '__main__':
+    WordCount.run()
+
+------wordcount.py--
+//word count deer
+
+from mrjob.job import MRJob
+from re import compile
+
+class WordCount(MRJob):
+
+    def mapper(self, key, value):
+        for word in value.split(','):
+            yield word.lower(), 1
+    
+    def reducer(self, key, values):
+        yield key, sum(values)
+        
+if __name__ == '__main__':
+    WordCount.run()
+   
+---------------sales.py-----
+from mrjob.job import MRJob
+
+class Sales(MRJob):
+    
+    def mapper(self, key, value):
+        record = value.split(',')
+        yield record[7], 1
+        
+    def reducer(self, key, values):
+        yield key, sum(values)
+        
+if __name__ == '__main__':
+    Sales.run()
+    
+
+    
